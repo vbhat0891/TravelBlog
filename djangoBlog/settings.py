@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
+import dj_database_url
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,8 +24,14 @@ SECRET_KEY = '+&*zx#k0$gi_!k(b4=l@@6on9hwcn^g0u$u6twlt4()_0*5ue6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = []
+try:
+    from .local_settings import *
+except ImportError:
+    pass
+
 
 
 # Application definition
@@ -85,8 +91,13 @@ WSGI_APPLICATION = 'djangoBlog.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'da1lu5hsc86ea2',
+        'USER': 'hahnilcqdhjlgm',
+        'PASSWORD': 'c2750933b10cda5c172aa20fbdd74ac43124d45b76679eaeec83ad6330e3170c',
+        'HOST': 'ec2-107-21-236-219.compute-1.amazonaws.com',
+        'PORT': '5432',
+
     }
 }
 
@@ -109,6 +120,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -125,6 +139,19 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_URL = '/static/'
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+os.path.join(PROJECT_ROOT, 'static'),
+
+)
 
 STATIC_URL = '/static/'
+
+# Update database configuration with $DATABASE_URL.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+DATABASES['default'] = dj_database_url.config()
